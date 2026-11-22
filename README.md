@@ -2,7 +2,7 @@
 
 **Current status: hardware study and read-only analysis, not a bootable custom ROM.**
 
-**Important newly discovered blocker:** the stock SM-M127F kernel reports Linux `4.19.111`, while the GSI framework FCM 5 XML contains kernel requirement sections for `5.4.61` only. Under Android's kernel VINTF matching rules the observed major/minor versions do **not** match. The unmodified GSI cannot be represented as compatible; see [device-vendor compatibility report](docs/gsi-vendor-compatibility.md). Do not flash.
+**Updated after owner feedback:** an **Android 16 GSI already booted on this Galaxy M12 via DSU Sideloader**; the exact filename and source are not yet known. Our static review found a 4.19 vs 5.4 FCM kernel-section discrepancy for the **current** GSI, but that alone must not be claimed to prove Android 16 cannot boot. See [revised comparison](docs/gsi-vendor-compatibility.md). The current uploaded image remains untested on-device.
 This repository does not contain an Android 16 build that has been tested on the M12. No flashing instructions, boot image, AVB change, proprietary driver injection or kernel patch has been validated.
 
 ## Known target facts (from owner's Termux)
@@ -16,7 +16,7 @@ This repository does not contain an Android 16 build that has been tested on the
 | Dynamic partitions | true |
 | Slot suffix | empty; actual layout still needs checking |
 | Super block | /dev/block/mmcblk0p31 |
-| Stock firmware, kernel & VINTF | **not yet inspected** |
+| Stock firmware, kernel & VINTF | **stock vendor XML and reported kernel examined**, runtime boot configuration not independently checked |
 
 ## Base release
 
@@ -49,6 +49,6 @@ The second workflow intentionally does **not** upload the ~2.3 GiB image as an a
 
 ## To continue toward real device compatibility
 
-Gather the **exact firmware build** and *read-only* vendor VINTF XML (helper: [`scripts/m12-vendor-snapshot.sh`](scripts/m12-vendor-snapshot.sh)) and filesystem/partition metadata on the physical M12. Use `scripts/collect-device-info.sh` for a brief property report. Compare VINTF in the stock firmware with the GSI system matrix, then investigate any actual incompatibility. Before trying a device image, ensure recovery/download mode and verified backups are available.
+Stock vendor VINTF XML and firmware build have been examined from the user's snapshot. **First identify the Android 16 GSI already booted on the device** and compare its source and matrix with our image. Use `scripts/collect-device-info.sh` for a brief property report. Compare VINTF in the stock firmware with the GSI system matrix, then investigate any actual incompatibility. Before trying a device image, ensure recovery/download mode and verified backups are available.
 
 Do **not** flash a system image from this repository yet: success of integrity or file inspection is not proof it will boot.
