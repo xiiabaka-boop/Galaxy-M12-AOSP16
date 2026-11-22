@@ -38,6 +38,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # This image has only about 32 MiB free; unsharing requires
+          # substantially more. Grow the *offline copy* before unsharing.
+          # Never run these tools on a live device block partition.
+          truncate -s +768M /tmp/m12-system.img
+          sudo resize2fs /tmp/m12-system.img
           # This AOSP image has EXT4 shared_blocks; never edit before unsharing.
           set +e
           sudo e2fsck -f -y -E unshare_blocks /tmp/m12-system.img > /tmp/unshare.log 2>&1
@@ -54,9 +59,8 @@ jobs:
             echo "::error::shared_blocks remains enabled; refusing to mount read/write"
             exit 1
           fi
-          # Add a small safe buffer for modified metadata and filesystem accounting.
-          truncate -s +64M /tmp/m12-system.img
-          sudo resize2fs /tmp/m12-system.img
+          # 768 MiB of extra space was added before the unshare operation.
+          # Keep it until patching and the final filesystem check complete.
 
       - name: Patch only display density, preserving system file labels
         shell: bash
