@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Página de download da GSI experimental AOSP Android 16 para Galaxy M12 SM-M127F, destinada a testes pelo DSU Sideloader.">
+  <title>Galaxy M12 AOSP 16 — Download DSU</title>
+  <style>
+    :root {color-scheme:dark;--bg:#090e19;--card:#121b2c;--border:#29354a;--fg:#edf2fa;--muted:#afbdd2;--accent:#39bce3}
+    * {box-sizing:border-box}
+    body {background:radial-gradient(ellipse 100% 40% at 50% 0%,#163e56,var(--bg));color:var(--fg);font:16px/1.55 system-ui,-apple-system,Roboto,Arial,sans-serif;margin:0;min-height:100vh;padding:30px 14px}
+    main {max-width:660px;margin:24px auto}
+    h1 {line-height:1.15;font-size:clamp(30px,6vw,43px);letter-spacing:-.04em;margin:13px 0}
+    p {margin:10px 0;color:var(--muted)}
+    .label {text-transform:uppercase;letter-spacing:.16em;font-size:12px;font-weight:800;color:#80def9}
+    .card {border:1px solid var(--border);background:var(--card);padding:24px;border-radius:18px;margin-top:26px}
+    .tag {display:inline-block;background:#213550;color:#a8ddff;padding:5px 10px;border-radius:999px;font-size:12px}
+    .btn {display:block;text-align:center;background:#34b5d9;color:#001d29;text-decoration:none;font-weight:800;padding:16px 18px;border-radius:12px;margin:20px 0 12px}
+    .btn:focus-visible,button:focus-visible {outline:3px solid white;outline-offset:3px}
+    .secondary {background:transparent;border:1px solid #67819f;color:var(--fg);margin-top:12px}
+    .meta {display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:15px 0}
+    .meta div {border:1px solid var(--border);padding:12px;border-radius:9px}
+    small {color:var(--muted)}
+    code {overflow-wrap:anywhere;color:#c7e7f6}
+    button {cursor:pointer;background:#1e3552;color:var(--fg);border:1px solid #67819f;border-radius:9px;padding:10px 12px;font:inherit}
+    .copyline {display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+    ol {color:var(--muted);padding-left:22px}
+    li {margin:7px 0}
+    .warning {border-left:3px solid #f0c36a;padding:8px 13px;background:#242337;color:#f1dfbc}
+    footer {text-align:center;margin:30px 0;color:var(--muted);font-size:13px}
+    a {color:#a7e4fa}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="label">Galaxy M12 • SM-M127F</div>
+    <h1>AOSP Android 16<br>GSI para testes DSU</h1>
+    <p>Versão experimental v0.1. Download direto do arquivo hospedado no GitHub Releases; funciona com gerenciadores como 1DM que aceitam redirecionamentos HTTPS.</p>
+    <section class="card">
+      <span class="tag">DSU v0.1 • experimental</span>
+      <h2>aosp16-m12-dsu-v0.1.img.xz</h2>
+      <div class="meta">
+        <div><small>Tamanho</small><br><strong>936,2 MB</strong></div>
+        <div><small>Formato</small><br><strong>IMG.XZ</strong></div>
+      </div>
+      <a class="btn" href="https://github.com/xiiabaka-boop/Galaxy-M12-AOSP16/releases/download/m12-dsu-v0.1/aosp16-m12-dsu-v0.1.img.xz">Baixar imagem GSI</a>
+      <a class="btn secondary" href="https://github.com/xiiabaka-boop/Galaxy-M12-AOSP16/releases/download/m12-dsu-v0.1/aosp16-m12-dsu-v0.1.img.xz.sha256">Baixar checksum SHA-256</a>
+      <p>Para o 1DM, use este link direto, sem passar pela página de confirmação:</p>
+      <div class="copyline"><button type="button" id="copy">Copiar link para 1DM</button><small id="result" role="status"></small></div>
+      <p><small>SHA-256:</small><br><code>638259b76af01bd315f49f8c2f19cc856354820cd0a350f0523bf4560dc9f8b6</code></p>
+    </section>
+    <section class="card">
+      <h2>Como baixar pelo 1DM</h2>
+      <ol>
+        <li>Toque em <strong>Copiar link para 1DM</strong>.</li>
+        <li>Abra o aplicativo <strong>1DM</strong> no Android.</li>
+        <li>Crie um novo download e cole a URL.</li>
+        <li>Confirme se o nome termina em <code>.img.xz</code>, depois inicie o download.</li>
+      </ol>
+      <p class="warning"><strong>Atenção:</strong> a GSI foi modificada apenas para usar densidade de tela 300 DPI. Não é uma ROM completa para o M12 e sua inicialização ainda não foi confirmada. Use apenas DSU Sideloader temporário, com backup, e não altere as partições originais.</p>
+      <p><a href="https://github.com/xiiabaka-boop/Galaxy-M12-AOSP16/releases/tag/m12-dsu-v0.1">Abrir a Release e detalhes técnicos</a></p>
+    </section>
+    <footer>Hospedado via GitHub Pages • Arquivo binário fornecido pelo GitHub Releases</footer>
+  </main>
+  <script>
+    const url='https://github.com/xiiabaka-boop/Galaxy-M12-AOSP16/releases/download/m12-dsu-v0.1/aosp16-m12-dsu-v0.1.img.xz';
+    document.querySelector('#copy').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(url); document.querySelector('#result').textContent='Link copiado!'; }
+      catch (_) { window.prompt('Copie o link:', url); }
+    });
+  </script>
+</body>
+</html>
