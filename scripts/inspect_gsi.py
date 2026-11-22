@@ -61,6 +61,19 @@ def report_image(root, out):
     for p in build_candidates:
         if p.is_file():
             found_props[str(p.relative_to(root))] = properties(p)
+    # Android releases move generated properties between partitions.
+    # If fixed locations don't expose an SDK, scan other small *.prop
+    # files and prop.default, without copying any proprietary content.
+    if not any(found_props.values()):
+        candidates = list(root.rglob("*.prop")) + list(root.rglob("prop.default"))
+        for p in sorted(set(candidates)):
+            try:
+                if p.is_file() and p.stat().st_size <= 1024 * 1024:
+                    matched = properties(p)
+                    if matched:
+                        found_props[str(p.relative_to(root))] = matched
+            except OSError:
+                pass
     vintf = []
     for prefix in ("etc/vintf", "system/etc/vintf", "system_ext/etc/vintf", "product/etc/vintf"):
         folder = root / prefix
