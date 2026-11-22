@@ -24,7 +24,7 @@ A imagem original inclui EXT4 `shared_blocks` (somente leitura). O workflow usa 
 
 ## Como obter
 
-Quando o workflow finalizar com sucesso, ele publicará uma **prerelease de testes** chamada `m12-dsu-v0.1` no [GitHub Releases](https://github.com/xiiabaka-boop/Galaxy-M12-AOSP16/releases), contendo `aosp16-m12-dsu-v0.1.img.xz` e o arquivo `.sha256`. Se der erro, não existirá uma versão publicada; abra os logs do workflow.
+**O workflow terminou com sucesso e publicou** a [prerelease de testes `m12-dsu-v0.1`](https://github.com/xiiabaka-boop/Galaxy-M12-AOSP16/releases/tag/m12-dsu-v0.1), contendo `aosp16-m12-dsu-v0.1.img.xz` e o arquivo `.sha256`. Se der erro, não existirá uma versão publicada; abra os logs do workflow.
 
 ## Teste por DSU Sideloader
 
