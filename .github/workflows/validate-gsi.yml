@@ -1,0 +1,52 @@
+name: Validate AOSP 16 GSI
+on:
+  workflow_dispatch:
+    inputs:
+      image_url:
+        description: "HTTPS URL to .img.xz release asset"
+        required: true
+        type: string
+      sha256:
+        description: "Expected SHA256 of .img.xz (64 hex characters)"
+        required: true
+        type: string
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    permissions:
+      contents: read
+    steps:
+      - name: Validate inputs and download
+        env:
+          URL: ${{ inputs.image_url }}
+          SHA: ${{ inputs.sha256 }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$URL" =~ ^https:// ]] || { echo "HTTPS required"; exit 1; }
+          [[ "$SHA" =~ ^[a-fA-F0-9]{64}$ ]] || { echo "Invalid SHA256"; exit 1; }
+          curl --fail --location --retry 3 --max-time 1800 --output gsi.img.xz "$URL"
+          echo "$SHA  gsi.img.xz" | sha256sum -c -
+          xz --test gsi.img.xz
+      - name: Inspect image
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p report
+          {
+            echo "Galaxy M12 SM-M127F experimental GSI inspection"
+            echo "Compressed bytes: $(stat -c %s gsi.img.xz)"
+            echo "SHA256: $(sha256sum gsi.img.xz)"
+            echo "XZ metadata:"
+            xz --list gsi.img.xz
+          } > report/inspection.txt
+          xz -dc gsi.img.xz | head -c 4096 > report/image-header.bin || true
+          file report/image-header.bin >> report/inspection.txt
+          echo "No device-specific compatibility or boot validation performed." >> report/inspection.txt
+          cat report/inspection.txt
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: gsi-inspection
+          path: report/inspection.txt
