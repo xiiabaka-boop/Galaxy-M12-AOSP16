@@ -7,7 +7,7 @@ Este projeto é de **testes por DSU** (Dynamic System Updates), não de flash pe
 - DSU instala temporariamente uma imagem de sistema e um ambiente de dados separados, sem substituir a partição original de sistema.
 - Em um teste normal, reiniciar permite voltar ao Android original; isso **não é garantia absoluta de recuperação se houver falha no boot**.
 - A GSI continua usando kernel/boot, `vendor`, `odm`, rádio e serviços de hardware do aparelho. Portanto, o DSU **não resolve por si só** problemas VINTF/kernel e HAL.
-- Para a imagem atual, a análise estática encontrou uma incompatibilidade potencial relevante entre o kernel ativo 4.19 e as entradas 5.4 da matriz FCM 5. Veja [relatório técnico](gsi-vendor-compatibility.md). Não interpretar isso como teste real de boot.
+- A análise estática da imagem atual encontrou uma possível diferença entre kernel ativo 4.19 e entradas 5.4 da matriz FCM 5. **Mas o proprietário já iniciou uma GSI Android 16 pelo DSU neste aparelho**, então isso não deve ser tratado como impedimento universal. Ainda não sabemos se foi exatamente a imagem desta Release. Veja o [relatório atualizado](gsi-vendor-compatibility.md).
 
 ## DSU Sideloader
 
@@ -20,7 +20,7 @@ O aparelho apresenta Treble e partições dinâmicas, bootloader desbloqueado e 
 ## Etapas de teste seguro
 
 1. Salvar dados pessoais e verificar espaço livre suficiente no armazenamento.
-2. Confirmar que o DSU Sideloader realmente consegue instalar **e iniciar** uma GSI conhecida como compatível no aparelho; se existir histórico, registrar modelo da imagem e resultado.
+2. **DSU Android 16 já iniciou no aparelho, conforme relato do proprietário.** Identificar o nome, o link e a versão exatos dessa GSI e registrar câmera, áudio, Wi-Fi, rede e retorno ao Android original.
 3. Manter o modo de inicialização temporária; **não ativar sticky mode** antes de um primeiro boot bem-sucedido.
 4. Não alterar `vbmeta`, `vendor`, `odm`, boot ou SELinux automaticamente.
 5. Se houver erro, anotar a fase exata: preparação, instalação, reboot/boot, interface, rede, câmera ou retorno ao sistema.
