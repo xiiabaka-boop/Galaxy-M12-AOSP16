@@ -27,6 +27,10 @@ This repository does not contain an Android 16 build that has been tested on the
 - Preliminary workflow `Validate AOSP 16 GSI` **succeeded**: archive digest and decompression check passed; header identifies Linux ext-family filesystem.
 - **Origin not authenticated:** matching a SHA-256 calculated on the phone only proves that the GitHub copy matches the phone copy. We have NOT verified the original publisher's checksum or signature. This filename alone does not prove this image is an official Google GSI.
 
+## Built experimental DSU test image
+
+The [**m12-dsu-v0.1 prerelease**](https://github.com/xiiabaka-boop/Galaxy-M12-AOSP16/releases/tag/m12-dsu-v0.1) contains a real changed EXT4 GSI image (`aosp16-m12-dsu-v0.1.img.xz`) with only one functional tweak: `ro.sf.lcd_density=300` in `/system/build.prop` based on the M12 LineageOS 21 tree. Its XZ SHA256 is `638259b76af01bd315f49f8c2f19cc856354820cd0a350f0523bf4560dc9f8b6`. The GitHub workflow safely expanded and unshared EXT4 blocks, validated the modification, checked the filesystem and tested the compressed output. **This is NOT confirmed as a boot-compatible M12 port.** No kernel, vendor, VINTF, SELinux or AVB changes.
+
 ## Workflows
 
 1. [Validate AOSP 16 GSI](.github/workflows/validate-gsi.yml) — verify hash, XZ, filesystem header. Requires URL and SHA input.
