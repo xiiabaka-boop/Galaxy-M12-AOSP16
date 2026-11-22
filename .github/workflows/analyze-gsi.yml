@@ -1,0 +1,68 @@
+name: Analyze AOSP 16 GSI filesystem
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/analyze-gsi.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inspect-image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - name: Checkout analysis scripts
+        uses: actions/checkout@v4
+
+      - name: Initialize report
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p report
+          printf '%s\n' '# AOSP 16 GSI inspection' 'Preparing read-only analysis.' > report/run-status.md
+
+      - name: Download and verify published release asset
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://github.com/xiiabaka-boop/Galaxy-M12-AOSP16/releases/download/aosp16-base/aosp-arm64-ab-vanilla-16.0-20250625.img.xz'
+          HASH='f3abc15e85fb3d8050881c0710259f8e12baf8fd5cf05598e672073b7816c831'
+          curl --fail --location --retry 3 --retry-delay 4 --max-time 1800 -o /tmp/m12-gsi.img.xz "$URL"
+          printf '%s  %s\n' "$HASH" /tmp/m12-gsi.img.xz | sha256sum -c -
+          xz --test /tmp/m12-gsi.img.xz
+          {
+            printf 'Original asset URL: %s\n' "$URL"
+            printf 'Compressed bytes: %s\n' "$(stat -c %s /tmp/m12-gsi.img.xz)"
+            printf 'Verified SHA256: %s\n' "$HASH"
+            xz --list /tmp/m12-gsi.img.xz
+            df -h .
+          } > report/source.txt
+
+      - name: Extract, mount read-only and inspect
+        shell: bash
+        run: |
+          set -euo pipefail
+          xz -dc /tmp/m12-gsi.img.xz > /tmp/m12-system.img
+          rm -f /tmp/m12-gsi.img.xz
+          file /tmp/m12-system.img | tee report/filesystem.txt
+          sudo dumpe2fs -h /tmp/m12-system.img > report/ext-superblock.txt 2>&1
+          mkdir -p /tmp/m12-mounted-gsi
+          cleanup() { sudo umount /tmp/m12-mounted-gsi 2>/dev/null || true; }
+          trap cleanup EXIT
+          if ! sudo mount -o loop,ro,noload -t ext4 /tmp/m12-system.img /tmp/m12-mounted-gsi; then
+            echo 'Read-only loop mounting failed; extracted filesystem not analyzed.' >> report/run-status.md
+            exit 1
+          fi
+          python3 scripts/inspect_gsi.py --root /tmp/m12-mounted-gsi --out report
+          printf '%s\n' 'Read-only filesystem inspection completed; NO boot or vendor compatibility validated.' > report/run-status.md
+
+      - name: Upload inspection report (never the system image)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aosp16-m12-structural-analysis
+          path: report/
+          if-no-files-found: warn
+          retention-days: 30
