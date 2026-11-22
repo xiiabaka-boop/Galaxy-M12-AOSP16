@@ -16,6 +16,10 @@ Este projeto tenta avaliar uma GSI AOSP 16 para um Samsung Galaxy M12 (SM-M127F)
 
 Não verificamos a origem oficial do arquivo (assinatura/checksum do autor original), nem iniciamos **esta imagem específica** no aparelho. O dono do M12 relatou inicialização bem-sucedida de **outra ou possivelmente esta** GSI Android 16 pelo DSU (identidade pendente).
 
+## Versão modificada experimental publicada
+
+[**AOSP16 M12 DSU v0.1**](https://github.com/xiiabaka-boop/Galaxy-M12-AOSP16/releases/tag/m12-dsu-v0.1) — imagem `aosp16-m12-dsu-v0.1.img.xz` gerada e validada no GitHub Actions; única alteração funcional é `ro.sf.lcd_density=300` no `system/build.prop` (referência: árvore M12 LineageOS 21). Hash SHA-256 do XZ modificado: `638259b76af01bd315f49f8c2f19cc856354820cd0a350f0523bf4560dc9f8b6`. **Ainda não testada no DSU do M12 e não é adaptação completa de drivers.**
+
 ## Nosso método de teste: DSU Sideloader
 
 O proprietário informou que irá testar a GSI pelo **DSU Sideloader**, sem flash permanente do `system.img`. O programa aceita a imagem `.img.xz` publicada, mas o DSU continua usando o kernel e drivers do dispositivo. Temos uma possível incompatibilidade VINTF, então o formato aceito não equivale a compatibilidade de boot. Veja o [plano de testes DSU](docs/teste-dsu-sideloader.md).
