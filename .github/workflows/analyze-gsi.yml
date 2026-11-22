@@ -57,6 +57,12 @@ jobs:
             exit 1
           fi
           python3 scripts/inspect_gsi.py --root /tmp/m12-mounted-gsi --out report
+          # These XMLs are from the publicly released GSI, not user-device vendor files.
+          mkdir -p report/system-vintf
+          for xml in /tmp/m12-mounted-gsi/system/etc/vintf/*.xml; do
+            [ -f "$xml" ] || continue
+            cp "$xml" report/system-vintf/
+          done
           printf '%s\n' 'Read-only filesystem inspection completed; NO boot or vendor compatibility validated.' > report/run-status.md
 
       - name: Upload inspection report (never the system image)
