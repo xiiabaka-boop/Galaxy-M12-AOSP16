@@ -16,6 +16,10 @@ Este projeto tenta avaliar uma GSI AOSP 16 para um Samsung Galaxy M12 (SM-M127F)
 
 Não verificamos a origem oficial do arquivo (assinatura/checksum do autor original), nem fizemos uma inicialização no aparelho.
 
+## Nosso método de teste: DSU Sideloader
+
+O proprietário informou que irá testar a GSI pelo **DSU Sideloader**, sem flash permanente do `system.img`. O programa aceita a imagem `.img.xz` publicada, mas o DSU continua usando o kernel e drivers do dispositivo. Temos uma possível incompatibilidade VINTF, então o formato aceito não equivale a compatibilidade de boot. Veja o [plano de testes DSU](docs/teste-dsu-sideloader.md).
+
 ## O que ainda falta
 
 - Coletar o modelo/firmware exato, a versão do kernel e os manifestos VINTF `vendor` e `odm` do Android 13 do aparelho.
