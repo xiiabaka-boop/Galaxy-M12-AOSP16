@@ -2,6 +2,8 @@
 
 **Situação atual: análise técnica. Ainda NÃO é uma ROM comprovadamente inicializável.**
 
+**ATENÇÃO — incompatibilidade detectada:** o kernel do aparelho é 4.19.111, enquanto a matriz de compatibilidade FCM 5 desta GSI contém apenas entradas de kernel 5.4.61. Conforme as regras VINTF do Android, essa combinação não possui correspondência de versão no XML examinado. Leia o [relatório completo](docs/gsi-vendor-compatibility.md). **Não instale essa GSI ainda.**
+
 Este projeto tenta avaliar uma GSI AOSP 16 para um Samsung Galaxy M12 (SM-M127F) com Android 13 original e Magisk. O bootloader está desbloqueado, segundo o proprietário.
 
 ## O que foi concluído
