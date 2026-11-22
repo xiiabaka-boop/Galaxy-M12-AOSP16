@@ -1,0 +1,17 @@
+{
+  "device_model": "SM-M127F",
+  "observed_on": "2026-11-22",
+  "source": "read-only Termux properties supplied by device owner",
+  "treble_enabled": true,
+  "dynamic_partitions": true,
+  "cpu_abi": "arm64-v8a",
+  "vendor_sdk": 33,
+  "vndk_version": "33",
+  "boot_slot_suffix": "",
+  "super_block_link": "/dev/block/mmcblk0p31",
+  "notes": [
+    "Empty slot suffix is NOT sufficient proof of A-only partition layout.",
+    "Stock firmware build identifier, vendor VINTF, kernel configuration and recovery method have not been verified.",
+    "None of these facts proves Android 16 boot compatibility."
+  ]
+}
