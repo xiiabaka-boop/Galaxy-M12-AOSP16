@@ -1,0 +1,140 @@
+name: Build M12 AOSP16 DSU test image v0.1
+on:
+  push:
+    paths:
+      - '.github/workflows/build-m12-dsu.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: m12-dsu-v01
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - name: Checkout patch scripts
+        uses: actions/checkout@v4
+
+      - name: Download and authenticate original GSI copy
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://github.com/xiiabaka-boop/Galaxy-M12-AOSP16/releases/download/aosp16-base/aosp-arm64-ab-vanilla-16.0-20250625.img.xz'
+          SHA='f3abc15e85fb3d8050881c0710259f8e12baf8fd5cf05598e672073b7816c831'
+          curl -fL --retry 3 --max-time 1800 "$URL" -o /tmp/m12-source.img.xz
+          printf '%s  %s\n' "$SHA" /tmp/m12-source.img.xz | sha256sum -c -
+          xz --test /tmp/m12-source.img.xz
+          xz -dc /tmp/m12-source.img.xz > /tmp/m12-system.img
+          rm -f /tmp/m12-source.img.xz
+          file /tmp/m12-system.img
+          sudo dumpe2fs -h /tmp/m12-system.img | grep -E 'Filesystem features:|Block count:|Free blocks:'
+
+      - name: Safely remove shared-block read-only feature and grow EXT4
+        shell: bash
+        run: |
+          set -euo pipefail
+          # This AOSP image has EXT4 shared_blocks; never edit before unsharing.
+          set +e
+          sudo e2fsck -f -y -E unshare_blocks /tmp/m12-system.img > /tmp/unshare.log 2>&1
+          fsck_status=$?
+          set -e
+          tail -40 /tmp/unshare.log
+          if (( fsck_status > 1 )); then
+            echo "::error::Could not unshare EXT4 blocks; aborting without writing a modified GSI."
+            exit 1
+          fi
+          features=$(sudo dumpe2fs -h /tmp/m12-system.img 2>/dev/null | grep '^Filesystem features:')
+          echo "$features"
+          if grep -qw shared_blocks <<< "$features"; then
+            echo "::error::shared_blocks remains enabled; refusing to mount read/write"
+            exit 1
+          fi
+          # Add a small safe buffer for modified metadata and filesystem accounting.
+          truncate -s +64M /tmp/m12-system.img
+          sudo resize2fs /tmp/m12-system.img
+
+      - name: Patch only display density, preserving system file labels
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo mkdir -p /tmp/m12-rw
+          cleanup() { sudo umount /tmp/m12-rw 2>/dev/null || true; }
+          trap cleanup EXIT
+          sudo mount -t ext4 -o loop,rw /tmp/m12-system.img /tmp/m12-rw
+          test -f /tmp/m12-rw/system/build.prop
+          echo "Before:"
+          sudo grep -E '^ro.sf.lcd_density=' /tmp/m12-rw/system/build.prop || true
+          sudo python3 scripts/patch_m12_display.py --root /tmp/m12-rw
+          echo "After:"
+          sudo grep -E '^ro.sf.lcd_density=300$' /tmp/m12-rw/system/build.prop
+          sync
+          cleanup
+          trap - EXIT
+
+      - name: Check filesystem, compress and verify resulting image
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          sudo e2fsck -f -y /tmp/m12-system.img >/tmp/final-fsck.log 2>&1
+          status=$?
+          set -e
+          tail -30 /tmp/final-fsck.log
+          if (( status > 1 )); then
+            echo "::error::Final EXT4 filesystem verification failed."
+            exit 1
+          fi
+          if sudo dumpe2fs -h /tmp/m12-system.img 2>/dev/null | grep -E '^Filesystem features:' | grep -qw shared_blocks; then
+            echo "::error::Modified image still has shared_blocks enabled."
+            exit 1
+          fi
+          sudo mkdir -p /tmp/m12-ro
+          sudo mount -t ext4 -o loop,ro,noload /tmp/m12-system.img /tmp/m12-ro
+          sudo grep -qx 'ro.sf.lcd_density=300' /tmp/m12-ro/system/build.prop
+          sudo umount /tmp/m12-ro
+          OUT='aosp16-m12-dsu-v0.1.img.xz'
+          xz -T2 -3 --check=crc64 -c /tmp/m12-system.img > "$OUT"
+          xz --test "$OUT"
+          echo "$(sha256sum "$OUT")" > "$OUT.sha256"
+          cat "$OUT.sha256"
+          SIZE=$(stat -c '%s' "$OUT")
+          if (( SIZE > 2147483648 )); then
+            echo "::error::Release asset exceeds GitHub's 2GiB per-file limit."
+            exit 1
+          fi
+          echo "Modified IMG.XZ bytes: $SIZE"
+          {
+            echo "# M12 AOSP16 DSU v0.1 — experimental prerelease"
+            echo ""
+            echo "This image is a **real changed copy** of the AOSP16 GSI, not a complete device port."
+            echo "ONLY functional change: system/build.prop ro.sf.lcd_density=300"
+            echo "Reference: galaxym12development/android_device_samsung_m12 lineage-21 BoardConfig.mk"
+            echo "The original .img.xz in aosp16-base remains unchanged."
+            echo "No drivers/kernel/vendor/AVB/SELinux/VINTF were modified."
+            echo ""
+            echo "**Not confirmed to boot** on SM-M127F. Use only for recoverable DSU Sideloader testing."
+            echo "Actual screen density may be overridden by vendor properties."
+            echo ""
+            echo "Original compressed SHA256: f3abc15e85fb3d8050881c0710259f8e12baf8fd5cf05598e672073b7816c831"
+            echo "Modified compressed SHA256: $(sha256sum "$OUT" | awk '{print $1}')"
+          } > RELEASE_NOTES.md
+
+      - name: Publish clearly labelled GitHub prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release create m12-dsu-v0.1 \
+            aosp16-m12-dsu-v0.1.img.xz \
+            aosp16-m12-dsu-v0.1.img.xz.sha256 \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title 'M12 AOSP16 DSU v0.1 (EXPERIMENTAL — DPI only)' \
+            --notes-file RELEASE_NOTES.md \
+            --prerelease
