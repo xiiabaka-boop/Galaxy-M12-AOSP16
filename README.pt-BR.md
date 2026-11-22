@@ -2,7 +2,7 @@
 
 **Situação atual: análise técnica. Ainda NÃO é uma ROM comprovadamente inicializável.**
 
-**ATENÇÃO — incompatibilidade detectada:** o kernel do aparelho é 4.19.111, enquanto a matriz de compatibilidade FCM 5 desta GSI contém apenas entradas de kernel 5.4.61. Conforme as regras VINTF do Android, essa combinação não possui correspondência de versão no XML examinado. Leia o [relatório completo](docs/gsi-vendor-compatibility.md). **Não instale essa GSI ainda.**
+**Atualização:** o proprietário informou que **já iniciou uma GSI Android 16 pelo DSU Sideloader** neste Galaxy M12. Ainda não sabemos qual imagem foi usada ou se é a mesma desta Release. O diagnóstico estático identificou uma possível diferença entre kernel 4.19 e a matriz FCM 5 com entradas 5.4, mas isso **não prova que Android 16 não possa iniciar no aparelho**. Confira o [relatório técnico atualizado](docs/gsi-vendor-compatibility.md).
 
 Este projeto tenta avaliar uma GSI AOSP 16 para um Samsung Galaxy M12 (SM-M127F) com Android 13 original e Magisk. O bootloader está desbloqueado, segundo o proprietário.
 
@@ -14,7 +14,7 @@ Este projeto tenta avaliar uma GSI AOSP 16 para um Samsung Galaxy M12 (SM-M127F)
 - Foram identificados arquivos VINTF, APEX, SELinux e configuração de inicialização da GSI.
 - As árvores do LineageOS 19.1, 21 e um branch comunitário `a16-lts` foram estudadas como referências, **não** copiadas para a imagem.
 
-Não verificamos a origem oficial do arquivo (assinatura/checksum do autor original), nem fizemos uma inicialização no aparelho.
+Não verificamos a origem oficial do arquivo (assinatura/checksum do autor original), nem iniciamos **esta imagem específica** no aparelho. O dono do M12 relatou inicialização bem-sucedida de **outra ou possivelmente esta** GSI Android 16 pelo DSU (identidade pendente).
 
 ## Nosso método de teste: DSU Sideloader
 
@@ -22,8 +22,8 @@ O proprietário informou que irá testar a GSI pelo **DSU Sideloader**, sem flas
 
 ## O que ainda falta
 
-- Coletar o modelo/firmware exato, a versão do kernel e os manifestos VINTF `vendor` e `odm` do Android 13 do aparelho.
-- Comparar interfaces/framework da GSI com a implementação `vendor` real.
+- Identificar o nome, a origem e o resultado de funcionamento da GSI Android 16 que já iniciou pelo DSU.
+- Comparar as interfaces e possíveis patches dessa GSI funcional com a imagem da Release (documentação VINTF `vendor` e `odm` já foi coletada e analisada).
 - Validar ambiente de recuperação (backup e acesso confiável ao modo Download) antes de qualquer teste de inicialização.
 - Somente então criar e testar *patches* individualizados, reversíveis, com descrição e evidência.
 
