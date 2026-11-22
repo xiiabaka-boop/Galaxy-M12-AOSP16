@@ -1,6 +1,8 @@
 # Galaxy M12 SM-M127F × AOSP Android 16 (experimental research)
 
 **Current status: hardware study and read-only analysis, not a bootable custom ROM.**
+
+**Important newly discovered blocker:** the stock SM-M127F kernel reports Linux `4.19.111`, while the GSI framework FCM 5 XML contains kernel requirement sections for `5.4.61` only. Under Android's kernel VINTF matching rules the observed major/minor versions do **not** match. The unmodified GSI cannot be represented as compatible; see [device-vendor compatibility report](docs/gsi-vendor-compatibility.md). Do not flash.
 This repository does not contain an Android 16 build that has been tested on the M12. No flashing instructions, boot image, AVB change, proprietary driver injection or kernel patch has been validated.
 
 ## Known target facts (from owner's Termux)
@@ -38,6 +40,8 @@ The second workflow intentionally does **not** upload the ~2.3 GiB image as an a
 
 - [LineageOS 21 M12 notes](docs/lineage-21-reference.md) — newer M12 device configuration reviewed from source.
 - [Android 16-labelled M12 common notes](docs/a16-port-reference.md) — newer community source; contains insecure debug settings that are NOT used.
+- [Local stock vendor audit](docs/stock-vendor-audit.md) — redacted diagnostics from the owner's VINTF XML snapshot.
+- [Static GSI↔vendor comparison](docs/gsi-vendor-compatibility.md) — kernel FCM 5 mismatch and follow-up checks.
 - [Older LineageOS 19.1 Exynos850 notes](docs/lineage-reference.md) — historical reference only.
 - [Stock facts](device/m12-stock-facts.json) — observed, not verified from stock firmware dump.
 
